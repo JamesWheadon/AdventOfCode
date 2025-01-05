@@ -1,7 +1,6 @@
 package year2024.day24
 
 import readInput
-import kotlin.math.min
 
 fun part1(input: List<String>): Long {
     val gates = input.takeWhile { line -> line.isNotEmpty() }
@@ -50,12 +49,11 @@ fun part2(input: List<String>): String {
         }
         operations.removeAll(completed)
     }
-    gates.sortedBy { it.name }.forEach { println("${it.name} ${it.operation()}") }
     val gateOpOrder = mutableListOf("XOR", "XOR")
     repeat(50) {
         gateOpOrder.addAll(listOf("AND", "OR", "XOR", "AND"))
     }
-    val swaps = mutableListOf("krs", "cpm")
+    val swaps = mutableListOf<String>()//"krs", "cpm")
     while (swaps.size < 8) {
         val zGates = gates.filter { it.name.first() == 'z' }.sortedBy { it.name }
         for (zGate in zGates) {
@@ -96,8 +94,6 @@ fun part2(input: List<String>): String {
                     }
                     desired = "($desired XOR $suffix)"
                 }
-                println(zGate.operation())
-                println(desired)
                 var errorStart = 0
                 var errorEnd = 0
                 if (operation.length < desired.length) {
@@ -130,18 +126,26 @@ fun part2(input: List<String>): String {
                 while (operation[errorStart] != '(') {
                     errorStart -= 1
                 }
-                while (operation[errorStart] == '(' && errorStart > 0) {
-                    errorStart -= 1
-                }
-
                 while (operation.substring(errorStart, errorEnd + 1).count { it == '(' } > operation.substring(
                         errorStart,
                         errorEnd + 1
                     ).count { it == ')' }) {
                     errorEnd += 1
                 }
+                if(operation[errorEnd] != ')' || operation.substring(errorStart, errorEnd).indices.any { index ->
+                    operation.substring(errorStart, errorStart + 1 + index).count { it == '(' } == operation.substring(errorStart, errorStart + 1 + index).count { it == ')' }
+                    }) {
+                    while (operation[errorStart] == '(' && errorStart > 0) {
+                        errorStart -= 1
+                    }
+                    while (operation.substring(errorStart, errorEnd + 1).count { it == '(' } > operation.substring(
+                            errorStart,
+                            errorEnd + 1
+                        ).count { it == ')' }) {
+                        errorEnd += 1
+                    }
+                }
                 val toReplace = operation.substring(errorStart, errorEnd + 1)
-                println(toReplace)
                 val errorGate = gates.first { gate ->
                     gate.operation() == toReplace
                 }
@@ -196,7 +200,6 @@ fun part2(input: List<String>): String {
                 }
                 swaps.add(swapGate.name)
                 swaps.add(errorGate.name)
-                println(swaps)
                 break
             }
         }
